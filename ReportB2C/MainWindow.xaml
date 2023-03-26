@@ -1,0 +1,844 @@
+﻿<Window x:Class="ReportB2C.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:ReportB2C.ViewModels"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:ReportB2C"
+        mc:Ignorable="d"
+        Title="ReportB2C" WindowState="Maximized">
+
+    <TabControl>
+        <TabItem Header="Raporty" Margin="-2,0,-2,0" Height="20" VerticalAlignment="Top">
+            <TabControl>
+                <TabItem Header="Raport spływów">
+                    <ScrollViewer>
+                        <DockPanel x:Name="MainPanel" Background="BlanchedAlmond">
+                            <StackPanel Background="Gray"  DockPanel.Dock="Left" Width="300">
+                                <Button x:Name="btnLoadDebtCollectors" Content="Wczytaj windykatorów" Command="{Binding SearchCommand}" Height="20" Margin="0,10,0,0"></Button>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Margin="0,10,0,0" x:Name="txtFiltr" Text="{Binding StringFiltr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                                    <Button x:Name="btnFiltr" Height="18" Margin="10,10,0,0" VerticalAlignment="Bottom" Grid.Column="1" Content="Wyszukaj" Command="{Binding FiltrCommand}"></Button>
+                                </Grid>
+                                <GroupBox>
+                                    <GroupBox.Header>
+                                        <TextBlock Text="Windykatorzy"></TextBlock>
+                                    </GroupBox.Header>
+                                    <ListView x:Name="lvDebtCollectors" Height="500" ItemsSource="{Binding DebtCollectorVMs}">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition></ColumnDefinition>
+                                                        <ColumnDefinition></ColumnDefinition>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Label Grid.Column="0" Content="{Binding Name}"></Label>
+                                                    <CheckBox Grid.Column="1" IsChecked="{Binding Check, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"></CheckBox>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </GroupBox>
+                                <Button x:Name="btnConfirm" Height="20" Content="Zatwierdź" Command="{Binding ConfirCommand}"></Button>
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Right" Margin="10,0,0,0" Background="Gray">
+                                <ListView x:Name="lvSelectedDebtCollectors" ItemsSource="{Binding SelectedDebtCollectorVMs}" Height="150">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Windykator"></GridViewColumn>
+                                            <GridViewColumn DisplayMemberBinding="{Binding CesjaPayments}" Header="Wpłaty - Cesja"></GridViewColumn>
+                                            <GridViewColumn DisplayMemberBinding="{Binding ZleceniaPayments}" Header="Wpłaty - Zlecenia"></GridViewColumn>
+                                            <GridViewColumn DisplayMemberBinding="{Binding CyberPayments}" Header="Wpłaty - Cyberwindykacje"></GridViewColumn>
+                                            <GridViewColumn DisplayMemberBinding="{Binding TotalPayments}" Header="Wpłaty - Suma"></GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                                <Label Background="White" Margin="0,10,0,10" Content="WPŁATY" HorizontalContentAlignment="Center" BorderThickness="1" BorderBrush="Black"></Label>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <Label Background="White" Grid.Column="0" BorderThickness="1" BorderBrush="Black" Grid.Row="0" Content="Cesja" HorizontalContentAlignment="Center"></Label>
+                                    <Label Background="White" Grid.Column="1" BorderThickness="1" BorderBrush="Black" Grid.Row="0" Content="Cyberwindykacje" HorizontalContentAlignment="Center"></Label>
+                                    <Label Background="White" Grid.Column="2" BorderThickness="1" BorderBrush="Black" Grid.Row="0" Content="Zlecenia" HorizontalContentAlignment="Center"></Label>
+                                    <Label Background="White" Grid.Column="3" BorderThickness="1" BorderBrush="Black" Grid.Row="0" Content="Przelewy 24" HorizontalContentAlignment="Center"></Label>
+                                    <Label Background="White" Grid.Column="4" BorderThickness="1" BorderBrush="Black" Grid.Row="0" Content="Samospłacalność" HorizontalContentAlignment="Center"></Label>
+                                    <Label Background="White" Grid.Column="5" BorderThickness="1" BorderBrush="Black" Grid.Row="0" Content="Wysyłka" HorizontalContentAlignment="Center"></Label>
+                                    <Label Background="White" Grid.Column="6" BorderThickness="1" BorderBrush="Black" Grid.Row="0" Content="Razem" HorizontalContentAlignment="Center"></Label>
+                                    <Label Background="White" Grid.Column="0" BorderThickness="1" BorderBrush="Black" Grid.Row="1" HorizontalContentAlignment="Center">
+                                        <TextBlock Text="{Binding MonthPaymentsCompany.CesjaPayments, StringFormat=C2, ConverterCulture=pl-PL }"  ></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Column="1" BorderThickness="1" BorderBrush="Black" Grid.Row="1" HorizontalContentAlignment="Center">
+                                        <TextBlock Text="{Binding MonthPaymentsCompany.CyberPayments, StringFormat=C2, ConverterCulture=pl-PL }"  ></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Column="2" BorderThickness="1" BorderBrush="Black" Grid.Row="1" HorizontalContentAlignment="Center">
+                                        <TextBlock Text="{Binding MonthPaymentsCompany.ZlecPayments, StringFormat=C2, ConverterCulture=pl-PL }"  ></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Column="3" BorderThickness="1" BorderBrush="Black" Grid.Row="1" HorizontalContentAlignment="Center">
+                                        <TextBlock Text="{Binding MonthPaymentsCompany.Przelewy24Payments, StringFormat=C2, ConverterCulture=pl-PL }"  ></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Column="4" BorderThickness="1" BorderBrush="Black" Grid.Row="1" HorizontalContentAlignment="Center">
+                                        <TextBlock Text="{Binding MonthPaymentsCompany.SelfPayments, StringFormat=C2, ConverterCulture=pl-PL }"  ></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Column="5" BorderThickness="1" BorderBrush="Black" Grid.Row="1" HorizontalContentAlignment="Center">
+                                        <TextBlock Text="{Binding MonthPaymentsCompany.ActuallyDeliveryPayments, StringFormat=C2, ConverterCulture=pl-PL }"  ></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Column="6" BorderThickness="1" BorderBrush="Black" Grid.Row="1" HorizontalContentAlignment="Center">
+                                        <TextBlock Text="{Binding MonthPaymentsCompany.TotalPayments, StringFormat=C2, ConverterCulture=pl-PL }"  ></TextBlock>
+                                    </Label>
+                                </Grid>
+                                <DatePicker Margin="0,10,0,0" Width="200" HorizontalAlignment="Center" SelectedDate="{Binding SelectedDay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayDate="{Binding Today}"></DatePicker>
+                                <Button x:Name="btnLoadPayForDay" Margin="0,10,0,0" Content="Wczytaj dla wybranej daty" Command="{Binding PaymentsForSelectedDayCommand}"></Button>
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <Label Background="White" Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="Black" HorizontalContentAlignment="Center" Content="Cesja"></Label>
+                                    <Label Background="White" Grid.Column="1" Grid.Row="0" BorderThickness="1" BorderBrush="Black" HorizontalContentAlignment="Center" Content="Zlecenie"></Label>
+                                    <Label Background="White" Grid.Column="2" Grid.Row="0" BorderThickness="1" BorderBrush="Black" HorizontalContentAlignment="Center" Content="Stander Czechy"></Label>
+                                    <Label Background="White" Grid.Column="3" Grid.Row="0" BorderThickness="1" BorderBrush="Black" HorizontalContentAlignment="Center" Content="Stander Słowacja"></Label>
+                                    <Label Background="White" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Center" BorderThickness="1" BorderBrush="Black">
+                                        <TextBlock Text="{Binding DayPaymentsVM.CesjaPay,StringFormat=C, ConverterCulture=pl-PL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Center" BorderThickness="1" BorderBrush="Black">
+                                        <TextBlock Text="{Binding DayPaymentsVM.ZlecPay,StringFormat=C, ConverterCulture=pl-PL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Column="2" Grid.Row="1" HorizontalContentAlignment="Center" BorderThickness="1" BorderBrush="Black">
+                                        <TextBlock Text="{Binding DayPaymentsVM.StanderCzPay,StringFormat=C, ConverterCulture=pl-PL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Column="3" Grid.Row="1" HorizontalContentAlignment="Center" BorderThickness="1" BorderBrush="Black">
+                                        <TextBlock Text="{Binding DayPaymentsVM.StanderSkPay,StringFormat=C, ConverterCulture=pl-PL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                    </Label>
+                                </Grid>
+                                <Label Background="White" Margin="0,10,0,0" Content="Wpłaty na dzień dla wybranej Cyberwindykacji" HorizontalContentAlignment="Center"></Label>
+                                <ComboBox Background="Yellow" Margin="0,10,0,0" ItemsSource="{Binding CyberNames}" HorizontalContentAlignment="Center" SelectedItem="{Binding CyberName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.ItemContainerStyle>
+                                        <Style TargetType="ComboBoxItem">
+                                            <Setter Property="Background" Value="Yellow"/>
+                                            <Setter Property="BorderBrush" Value="Black"/>
+                                        </Style>
+                                    </ComboBox.ItemContainerStyle>
+                                </ComboBox>
+                                <Button Margin="0,10,0,0" Command="{Binding PaymentsForSelectedCyberCommand}" Content="Wczytaj wpłaty dla Cyber"></Button>
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <Label Background="White" Grid.Row="0" Grid.Column="0" Content="Wpłaty - wybrana cyberwindykacja" HorizontalContentAlignment="Center" BorderThickness="1" BorderBrush="Black"></Label>
+                                    <Label Background="White" Grid.Row="0" Grid.Column="1" Content="Wpłaty - wszystkie cyberwindykacje" HorizontalContentAlignment="Center" BorderThickness="1" BorderBrush="Black"></Label>
+                                    <Label Background="White" Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Center" BorderThickness="1" BorderBrush="Black">
+                                        <TextBlock Text="{Binding CyberDayPay.CyberPay,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                    </Label>
+                                    <Label Background="White" Grid.Row="1" Grid.Column="1" HorizontalContentAlignment="Center" BorderThickness="1" BorderBrush="Black">
+                                        <TextBlock Text="{Binding DayPaymentsVM.CyberTotalPay,StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                    </Label>
+                                </Grid>
+                                <Button Margin="0,10,0,0" Content="Podgląd maila" Command="{Binding LoadMailCommand}"></Button>
+                                <WebBrowser Margin="0,10,0,0" vm:WebBrowserUtility.Body="{Binding MessageBody,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Bottom" Height="298">
+                                    <WebBrowser.OpacityMask>
+                                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                            <GradientStop Color="Black"/>
+                                            <GradientStop Color="White" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </WebBrowser.OpacityMask>
+                                </WebBrowser>
+                                <Button Margin="0,10,0,0" Content="Wyślij maila" Command="{Binding SendEmailCommand}"></Button>
+                            </StackPanel>
+                        </DockPanel>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Raport z wysyłki">
+                    <ScrollViewer>
+                        <StackPanel x:Name="DeliveryPanel" Background="Gray">
+                            <Label Margin="10,10,10,0" Content="Podaj nazwę wysyłki (data):" Background="White"></Label>
+                            <TextBox Margin="10,10,10,0" Text="{Binding DeliveryName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                            <Button Margin="10" Content="Wczytaj" Command="{Binding DeliveryRaportCommand}"></Button>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <StackPanel Margin="10" Grid.Row="0" Grid.Column="0">
+                                    <Label BorderThickness="1" BorderBrush="Black" Background="White" Content="CESJA" HorizontalContentAlignment="Center"></Label>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="0" Content="Odsetki:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="1" Content="Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="2" Content="Należność:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="3" Content="WPS + Odsetki + Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="4" Content="Ilość wezwań:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="0" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[0].Interest, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="1" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[0].Cost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="2" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[0].Due, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="3" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[0].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="4" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[0].Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                        </Label>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Margin="10" Grid.Row="1" Grid.Column="0">
+                                    <Label BorderThickness="1" BorderBrush="Black" Background="White" Content="ZLECENIA" HorizontalContentAlignment="Center"></Label>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="0" Content="Odsetki:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="1" Content="Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="2" Content="Należność:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="3" Content="WPS + Odsetki + Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="4" Content="Ilość wezwań:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="0" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[5].Interest, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="1" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[5].Cost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="2" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[5].Due, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="3" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[5].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="4" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[5].Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                        </Label>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Margin="10" Grid.Row="0" Grid.Column="1">
+                                    <Label BorderThickness="1" BorderBrush="Black" Background="White" Content="CYBERWINDYKACJA" HorizontalContentAlignment="Center"></Label>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="0" Content="Odsetki:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="1" Content="Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="2" Content="Należność:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="3" Content="WPS + Odsetki + Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="4" Content="Ilość wezwań:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="0" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[1].Interest, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="1" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[1].Cost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="2" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[1].Due, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="3" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[1].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="4" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[1].Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                        </Label>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Margin="10" Grid.Row="1" Grid.Column="1">
+                                    <Label BorderThickness="1" BorderBrush="Black" Background="White" Content="CYBERWINDYKACJA I" HorizontalContentAlignment="Center"></Label>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="0" Content="Odsetki:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="1" Content="Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="2" Content="Należność:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="3" Content="WPS + Odsetki + Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="4" Content="Ilość wezwań:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="0" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[2].Interest, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="1" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[2].Cost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="2" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[2].Due, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="3" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[2].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="4" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[2].Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                        </Label>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Margin="10" Grid.Row="0" Grid.Column="2">
+                                    <Label BorderThickness="1" BorderBrush="Black" Background="White" Content="CYBERWINDYKACJA II" HorizontalContentAlignment="Center"></Label>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="0" Content="Odsetki:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="1" Content="Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="2" Content="Należność:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="3" Content="WPS + Odsetki + Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="4" Content="Ilość wezwań:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="0" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[3].Interest, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="1" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[3].Cost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="2" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[3].Due, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="3" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[3].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="4" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[3].Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                        </Label>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Margin="10" Grid.Row="1" Grid.Column="2">
+                                    <Label BorderThickness="1" BorderBrush="Black" Background="White" Content="CYBERWINDYKACJA III" HorizontalContentAlignment="Center"></Label>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="0" Content="Odsetki:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="1" Content="Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="2" Content="Należność:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="3" Content="WPS + Odsetki + Koszta:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="4" Content="Ilość wezwań:"></Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="0" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[4].Interest, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="1" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[4].Cost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="2" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[4].Due, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="3" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[4].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C, ConverterCulture=pl-PL}"></TextBlock>
+                                        </Label>
+                                        <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Row="4" Grid.Column="1">
+                                            <TextBlock Text="{Binding DeliveryInfo[4].Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                        </Label>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                            <Button Margin="10,10,10,0" Content="Pdogląd maila" Command="{Binding LoadDeliveryRaportCommand}"></Button>
+                            <WebBrowser Margin="10,10,10,0" Height="350" vm:WebBrowserUtility.Body="{Binding MessageBody,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></WebBrowser>
+                            <Button Margin="10,10,10,0" Content="Wyślij maila" Command="{Binding SendDeliveryRaportCommand}"></Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </TabItem>
+        <TabItem Header="EPU">
+            <TabControl x:Name="EpuTabs" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TabItem x:Name="OrzeczenieTab" Header="Orzeczenia">
+                    <DockPanel x:Name="EpuPanel" Background="BlanchedAlmond">
+                        <ScrollViewer>
+                            <StackPanel Background="Gray">
+                                <Label Content="Data ostatniej aktualzicaji:"></Label>
+                                <Label Content="{Binding UpdateDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Language="pl-PL"></Label>
+                                <Button Content="Odśwież orzeczenia" Margin="10,10,10,0" Command="{Binding LoadApiCommand}"></Button>
+                                <ComboBox Margin="10,10" ItemsSource="{Binding TypeOfJudgments}" HorizontalContentAlignment="Center" SelectedItem="{Binding SelectedType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
+                                <Button Content="Wczytaj Orzeczenia" Margin="10,0" Command="{Binding LoadSelectedJudgmentsCommand}"></Button>
+                                <DataGrid Margin="10,10,10,0" Width="auto" ItemsSource="{Binding JudgmentsOutputElements}" SelectedItem="{Binding SelectedItemO,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Data orzeczenia" Binding="{Binding DataOrzeczenia, ConverterCulture=pl-PL}"></DataGridTextColumn>
+                                        <DataGridTextColumn Header="Nazwa decyzji" Binding="{Binding NazwaDecyzji}"></DataGridTextColumn>
+                                        <DataGridTextColumn Header="Sygnatura według powoda" Binding="{Binding SygnaturaWgPowoda}"></DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <ScrollViewer>
+                            <StackPanel Background="Gray">
+ 
+                                <Label Content="Komentarz" VerticalAlignment="Center" VerticalContentAlignment="Center"></Label>
+                                <TextBox Margin="10,10,10,0" TextWrapping="Wrap" Height="75" Text="{Binding SelectedItemO.Comment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                                <Button Content="Dodaj komentarz" Margin="10,10,10,0" Command="{Binding AddCommentCommand}"></Button>
+                                <Button Content="Odznacz jako zrobione" Margin="10,10,10,0" Command="{Binding ChangeStateCommand}"></Button>
+                                <GroupBox Margin="10,10,10,0" Header="Szczegóły orzeczenia" HorizontalAlignment="Stretch">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                            </Grid.RowDefinitions>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="0" Content="Login EPU"></Label>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="1" Grid.Row="0" Content="{Binding SelectedItemO.IdPowoda}"></Label>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="1" Content="Syg. wgl powoda"></Label>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="1" Grid.Row="1" Content="{Binding SelectedItemO.SygnaturaWgPowoda}"></Label>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="2" Content="Syg. sprawy"></Label>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="1" Grid.Row="2" Content="{Binding SelectedItemO.SygnaturaSprawy}"></Label>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="3" Content="Nazwa decyzji"></Label>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="1" Grid.Row="3" Content="{Binding SelectedItemO.NazwaDecyzji}"></Label>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="0" Grid.Row="4" Content="Data orzeczenia"></Label>
+                                            <Label BorderThickness="1" BorderBrush="Black" Background="White" Grid.Column="1" Grid.Row="4" Content="{Binding SelectedItemO.DataOrzeczenia}"></Label>
+                                        </Grid>
+                                        <TextBox Margin="0,10,0,0" IsReadOnly="True" Grid.Row="1" Text="{Binding SelectedItemO.XmlDocumnetCon}" VerticalAlignment="Stretch" TextWrapping="Wrap"></TextBox>
+                                    </Grid>
+                                </GroupBox>
+                                <Button Content="Przejdź do maila" Margin="10,10,10,10" Command="{Binding ChangeIndexTabCommand}"></Button>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </TabItem>
+                <TabItem Header="Mail" x:Name="EpuMailTab" Height="20" VerticalAlignment="Top">
+                    <DockPanel Background="Gray" x:Name="EpuMailPanel">
+                        <StackPanel DockPanel.Dock="Left">
+                            <GroupBox Header="Mail" Margin="0,0,10,0" Width="350">
+                                <Grid VerticalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Column="0" Grid.Row="0" Content="Nadawca"></Label>
+                                    <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Sender[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="200" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="26" Margin="9,0,10,26" Grid.RowSpan="2" VerticalAlignment="Bottom"></TextBox>
+                                    <Label Grid.Column="0" Grid.Row="1" Content="Odbiorca"></Label>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Sender[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="200" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"></TextBox>
+                                    <Label Grid.Column="0" Grid.Row="2" Content="Kopia"></Label>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Sender[2], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="200" HorizontalContentAlignment="Center"></TextBox>
+                                    <Label Grid.Row="3" Grid.Column="0" Content="Dodaj załącznik"></Label>
+                                    <TextBox Grid.Row="4" Grid.Column="0" Text="{Binding Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                                    <Button Grid.Row="4" Grid.Column="1" Margin="10,0" Content="Załącznik" Command="{Binding AddAttachmentCommand}"></Button>
+                                    <Label Grid.Row="5" Grid.Column="0" Content="Temat"></Label>
+                                    <TextBox Grid.Row="6" Grid.ColumnSpan="2" Margin="0,0,0,0" Text="{Binding Sender[3], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                                    <Label Grid.Row="7" Grid.Column="0" Content="Data odpowiedzi:"></Label>
+                                    <DatePicker Grid.Row="7" Grid.Column="1" Margin="10,0" Width="200" HorizontalAlignment="Center" SelectedDate="{Binding SelectedDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayDate="{Binding TodayEpu}" Text="Wybierz datę"></DatePicker>
+                                </Grid>
+                            </GroupBox>
+                        </StackPanel>
+                        <Border DockPanel.Dock="Right" CornerRadius="6" BorderBrush="Black" BorderThickness="2" Background="LightGray">
+                            <StackPanel Margin="10,0,0,0">
+                                <ComboBox ItemsSource="{Binding Templates}" SelectedItem="{Binding SelectedTemp}" Background="YellowGreen"  Margin="0,10,10,10">
+                                    <ComboBox.ItemContainerStyle>
+                                        <Style TargetType="ComboBoxItem">
+                                            <Setter Property="Background" Value="YellowGreen"/>
+                                            <Setter Property="BorderBrush" Value="Black"/>
+                                        </Style>
+                                    </ComboBox.ItemContainerStyle>
+                                </ComboBox>
+                                <WebBrowser Margin="0,10,10,10" vm:WebBrowserUtility.Body="{Binding MessageBody,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Bottom" Height="298"></WebBrowser>
+                                <Button Content="Wczytaj maila" Command="{Binding LoadEpuBodyCommand}"  Margin="0,10,10,0"></Button>
+                                <Button Content="Wyślij maila" Command="{Binding SendEmailEPUCommand}"  Margin="0,10,10,0"></Button>
+                            </StackPanel>
+                        </Border>
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
+        </TabItem>
+        <TabItem Header="Generator">
+            <TabControl>
+                <TabItem Header="AISOCR">
+                    <DockPanel x:Name="GeneratorAis" Background="Gray">
+                        <Border BorderThickness="1" BorderBrush="Black" DockPanel.Dock="Left" Margin="10" Background="White">
+                            <StackPanel>
+                                <Button Content="Wczytaj plik źródłowy" Margin="5,5" Command="{Binding OpenExcelCommand}"></Button>
+                                <Border Margin="5,5" Background="Gray" BorderBrush="Black" BorderThickness="1">
+                                    <StackPanel>
+                                        <Label Content="Wybierz klienta" HorizontalAlignment="Stretch" Background="Red" HorizontalContentAlignment="Center" Margin="5,5" BorderThickness="1" BorderBrush="Black"></Label>
+                                        <CheckBox Content="STATIMA S.A" IsChecked="{Binding DateExcelAis[0].Checked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                                        <CheckBox Content="CYBER" IsChecked="{Binding DateExcelAis[1].Checked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                                        <CheckBox Content="CYBER I" IsChecked="{Binding DateExcelAis[2].Checked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                                        <CheckBox Content="CYBER II" IsChecked="{Binding DateExcelAis[3].Checked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                                        <CheckBox Content="CYBER III" IsChecked="{Binding DateExcelAis[4].Checked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                                    </StackPanel>
+                                </Border>
+                                <Label Content="Data protokołu:" Margin="5,5,5,0" Background="Gray"></Label>
+                                <DatePicker Margin="5,0" SelectedDate="{Binding ProtocolDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></DatePicker>
+                                <Label Content="Data zlecenia:" Margin="5,5,5,0" Background="Gray"></Label>
+                                <DatePicker Margin="5,0" SelectedDate="{Binding JobDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></DatePicker>
+                                <Button Content="Wygeneruj dokumenty" Margin="5,5" Command="{Binding GenerateDocumentsCommand}"></Button>
+                            </StackPanel>
+                        </Border>
+                        <ScrollViewer>
+                            <StackPanel DockPanel.Dock="Right">
+                                <GroupBox Header="STATIMA" Width="auto" Margin="0,0,10,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Background="Wheat" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="1" Content="Ilość" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="2" Content="Koszt netto" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="3" Content="Koszty" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="1" Grid.Column="0" Background="Red" Content="{Binding DateExcelAis[0].Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="4" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="0" Background="Yellow" Content="Rozszycie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[0].Stitching, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[0].StitchingCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[0].StitchingCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="0" Background="Yellow" Content="Skanowanie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[0].Scanning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[0].ScanningCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[0].ScanningCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="0" Background="Yellow" Content="Human OCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[0].HumanOcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[0].HumanOcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[0].HumanOcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="0" Background="Yellow" Content="Konwersja" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[0].Conversion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[0].ConversionCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[0].ConversionCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="0" Background="Yellow" Content="Rozpoznawanie TCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[0].RecognitionTcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[0].RecognitionTcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[0].RecognitionTcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="0" Background="Yellow" Content="Google" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[0].Google, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[0].GoogleCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[0].GoogleCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="0" Background="Green" Content="SUMA" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[0].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center" Grid.ColumnSpan="3"></Label>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Cyberwindykacja Sp. z o.o." Width="auto" Margin="0,0,10,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Background="Wheat" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="1" Content="Ilość" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="2" Content="Koszt netto" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="3" Content="Koszty" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="1" Grid.Column="0" Background="Red" Content="{Binding DateExcelAis[1].Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="4" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="0" Background="Yellow" Content="Rozszycie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[1].Stitching, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[1].StitchingCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[1].StitchingCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="0" Background="Yellow" Content="Skanowanie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[1].Scanning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[1].ScanningCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[1].ScanningCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="0" Background="Yellow" Content="Human OCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[1].HumanOcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[1].HumanOcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[1].HumanOcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="0" Background="Yellow" Content="Konwersja" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[1].Conversion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[1].ConversionCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[1].ConversionCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="0" Background="Yellow" Content="Rozpoznawanie TCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[1].RecognitionTcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[1].RecognitionTcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[1].RecognitionTcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="0" Background="Yellow" Content="Google" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[1].Google, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[1].GoogleCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[1].GoogleCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="0" Background="Green" Content="SUMA" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[1].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center" Grid.ColumnSpan="3"></Label>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Cyberwindykacja I Sp. z o.o." Width="auto" Margin="0,0,10,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Background="Wheat" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="1" Content="Ilość" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="2" Content="Koszt netto" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="3" Content="Koszty" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="1" Grid.Column="0" Background="Red" Content="{Binding DateExcelAis[2].Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="4" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="0" Background="Yellow" Content="Rozszycie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[2].Stitching, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[2].StitchingCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[2].StitchingCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="0" Background="Yellow" Content="Skanowanie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[2].Scanning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[2].ScanningCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[2].ScanningCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="0" Background="Yellow" Content="Human OCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[2].HumanOcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[2].HumanOcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[2].HumanOcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="0" Background="Yellow" Content="Konwersja" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[2].Conversion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[2].ConversionCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[2].ConversionCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="0" Background="Yellow" Content="Rozpoznawanie TCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[2].RecognitionTcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[2].RecognitionTcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[2].RecognitionTcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="0" Background="Yellow" Content="Google" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[2].Google, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[2].GoogleCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[2].GoogleCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="0" Background="Green" Content="SUMA" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[2].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center" Grid.ColumnSpan="3"></Label>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Cyberwindykacja II Sp. z o.o." Width="auto" Margin="0,0,10,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Background="Wheat" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="1" Content="Ilość" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="2" Content="Koszt netto" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="3" Content="Koszty" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="1" Grid.Column="0" Background="Red" Content="{Binding DateExcelAis[3].Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="4" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="0" Background="Yellow" Content="Rozszycie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[3].Stitching, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[3].StitchingCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[3].StitchingCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="0" Background="Yellow" Content="Skanowanie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[3].Scanning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[3].ScanningCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[3].ScanningCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="0" Background="Yellow" Content="Human OCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[3].HumanOcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[3].HumanOcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[3].HumanOcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="0" Background="Yellow" Content="Konwersja" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[3].Conversion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[3].ConversionCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[3].ConversionCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="0" Background="Yellow" Content="Rozpoznawanie TCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[3].RecognitionTcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[3].RecognitionTcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[3].RecognitionTcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="0" Background="Yellow" Content="Google" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[3].Google, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[3].GoogleCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[3].GoogleCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="0" Background="Green" Content="SUMA" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[3].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center" Grid.ColumnSpan="3"></Label>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Cyberwindykacja III Sp. z o.o." Width="auto" Margin="0,0,10,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" Grid.Column="0" Background="Wheat" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="1" Content="Ilość" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="2" Content="Koszt netto" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="0" Grid.Column="3" Content="Koszty" Background="White" BorderBrush="Black" BorderThickness="1"></Label>
+                                        <Label Grid.Row="1" Grid.Column="0" Background="Red" Content="{Binding DateExcelAis[4].Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="4" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="0" Background="Yellow" Content="Rozszycie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[4].Stitching, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[4].StitchingCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="2" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[4].StitchingCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="0" Background="Yellow" Content="Skanowanie" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[4].Scanning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[4].ScanningCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="3" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[4].ScanningCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="0" Background="Yellow" Content="Human OCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[4].HumanOcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[4].HumanOcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="4" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[4].HumanOcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="0" Background="Yellow" Content="Konwersja" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[4].Conversion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[4].ConversionCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="5" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[4].ConversionCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="0" Background="Yellow" Content="Rozpoznawanie TCR" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[4].RecognitionTcr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[4].RecognitionTcrCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="6" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[4].RecognitionTcrCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="0" Background="Yellow" Content="Google" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[4].Google, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="2" Background="White" Content="{Binding DateExcelAis[4].GoogleCost[0], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="7" Grid.Column="3" Background="White" Content="{Binding DateExcelAis[4].GoogleCost[1], Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="0" Background="Green" Content="SUMA" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center"></Label>
+                                        <Label Grid.Row="8" Grid.Column="1" Background="White" Content="{Binding DateExcelAis[4].AllCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="Black" BorderThickness="1" HorizontalContentAlignment="Center" Grid.ColumnSpan="3"></Label>
+                                    </Grid>
+                                </GroupBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
+        </TabItem>
+    </TabControl>
+
+</Window>
+    
