@@ -41,9 +41,9 @@ namespace ReportB2C.Tools
 
             try
             {
-                int? iloscStronMarcin = await Task.Run(() => client.MojeOrzeczeniaAsync("70011185", "komandyt", "bf33ca82-381a-4972-940d-d152dbd0bb18",
+                int? iloscStronMarcin = await Task.Run(() => client.MojeOrzeczeniaAsync("", "", "",
                                 null, 100, date, DateTime.Now, 0, null).Result.iloscStron);
-                int? iloscStronLukasz = await Task.Run(() => client.MojeOrzeczeniaAsync("61412583", "komandyt", "83956678-254b-4687-939c-3c3b405f3ba2",
+                int? iloscStronLukasz = await Task.Run(() => client.MojeOrzeczeniaAsync("", "", "",
                     null, 100, date, DateTime.Now, 0, null).Result.iloscStron);
 
                 MojeOrzeczeniaOutputData mojeOrzeczeniaVer2OutputData;
@@ -52,7 +52,7 @@ namespace ReportB2C.Tools
 
                 for (int i = 1; i <= iloscStronMarcin; i++)
                 {
-                    mojeOrzeczeniaVer2OutputData = await Task.Run(() => client.MojeOrzeczeniaAsync("70011185", "komandyt", "bf33ca82-381a-4972-940d-d152dbd0bb18",
+                    mojeOrzeczeniaVer2OutputData = await Task.Run(() => client.MojeOrzeczeniaAsync("", "", "",
                             i, 100, date, DateTime.Now, 0, null));
                     foreach (var x in mojeOrzeczeniaVer2OutputData.listaOrzeczen)
                     {
@@ -83,7 +83,7 @@ namespace ReportB2C.Tools
 
                 for (int i = 1; i <= iloscStronLukasz; i++)
                 {
-                    mojeOrzeczeniaVer2OutputData = await Task.Run(() => client.MojeOrzeczeniaAsync("61412583", "komandyt", "83956678-254b-4687-939c-3c3b405f3ba2",
+                    mojeOrzeczeniaVer2OutputData = await Task.Run(() => client.MojeOrzeczeniaAsync("", "", "",
                             i, 100, date, DateTime.Now, 0, null));
                     foreach (var x in mojeOrzeczeniaVer2OutputData.listaOrzeczen)
                     {
