@@ -204,22 +204,22 @@ namespace ReportB2C.Tools
 
                 if (selectedItem == "ZTM Rzeszów - Wezwanie o adres" || selectedItem == "ZTM Rzeszów - Umorzenie postępowania (sprzeciw)" || selectedItem == "ZTM Rzeszów - Umorzenie postępowania")
                 {
-                    recipient[0] = "m.nowak@statima.pl";
-                    recipient[1] = "kzabek@ztm.erzeszow.pl";
-                    recipient[2] = "rpankowska@ztm.erzeszow.pl";
+                    recipient[0] = "";
+                    recipient[1] = "";
+                    recipient[2] = "";
                     recipient[3] = $"EPU " + name[1].ToUpper() + ' ' + name[0].Substring(0, 1).ToUpper() + '.';
                 }
                 else if (selectedItem == "MZK Opole - Wezwanie o adres" || selectedItem == "MZK Opole - Umorzenie postępowania (sprzeciw)" || selectedItem == "MZK Opole - Umorzenie postępowania")
                 {
-                    recipient[0] = "m.nowak@statima.pl";
-                    recipient[1] = "donataw@mzkopole.pl";
-                    recipient[2] = "katarzynak@mzkopole.pl";
+                    recipient[0] = "";
+                    recipient[1] = "";
+                    recipient[2] = "";
                     recipient[3] = $"EPU " + name[1].ToUpper() + ' ' + name[0].Substring(0, 1).ToUpper() + '.';
                 }
                 else if(selectedItem == "MZK Ostrów - Umorzenie postępowania (sprzeciw)" || selectedItem == "MZK Ostrów - Umorzenie postępowania" || selectedItem == "MZK Ostrów - Wezwanie o adres")
                 {
-                    recipient[0] = "m.nowak@statima.pl";
-                    recipient[1] = "d.wawrzyniak@mzk-ostrow.com.pl";
+                    recipient[0] = "";
+                    recipient[1] = "";
                     recipient[2] = "";
                     recipient[3] = $"EPU " + name[1].ToUpper() + ' ' + name[0].Substring(0, 1).ToUpper() + '.';
                 }

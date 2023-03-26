@@ -20,7 +20,7 @@ namespace ReportB2C.ModelsLocal
         public Attachment AttachmentEpu { get; set; }
         public SmptClientAccess()
         {
-            SmtpClient = new SmtpClient("smtp.statima.pl");
+            SmtpClient = new SmtpClient("");
         }
 
         public void SetClientRaport(string messageBody, string subject, string data)
@@ -29,14 +29,14 @@ namespace ReportB2C.ModelsLocal
 
             SmtpClient.UseDefaultCredentials = false;
             SmtpClient.Port = 587;
-            networkCredential = new System.Net.NetworkCredential("raporty@statima.pl", "rNQ%-3+aZY-hxvx7");
+            networkCredential = new System.Net.NetworkCredential("", "");
             SmtpClient.Credentials = networkCredential;
             System.Net.Mime.ContentType contentType = new System.Net.Mime.ContentType();
             contentType.MediaType = System.Net.Mime.MediaTypeNames.Application.Octet;
 
-            From = new MailAddress("raporty@statima.pl", "Raporty");
-            To = new MailAddress("zarzad@statima.pl", "Zarząd Statima");
-            Copy = new MailAddress("b.myler@statima.pl");
+            From = new MailAddress("", "Raporty");
+            To = new MailAddress("", "");
+            Copy = new MailAddress("");
             MailMessage = new System.Net.Mail.MailMessage(From, To);
             MailMessage.CC.Add(Copy);
 
@@ -56,12 +56,12 @@ namespace ReportB2C.ModelsLocal
 
             SmtpClient.UseDefaultCredentials = false;
             SmtpClient.Port = 587;
-            networkCredential = new System.Net.NetworkCredential("m.nowak@statima.pl", "AMfsadu721ndeic");
+            networkCredential = new System.Net.NetworkCredential("", "");
             SmtpClient.Credentials = networkCredential;
             System.Net.Mime.ContentType contentType = new System.Net.Mime.ContentType();
             contentType.MediaType = System.Net.Mime.MediaTypeNames.Application.Octet;
 
-            From = new MailAddress("m.nowak@statima.pl", "Magdalena Nowak");
+            From = new MailAddress("", "");
             To = new MailAddress(to);
 
             MailMessage = new System.Net.Mail.MailMessage(From, To);
